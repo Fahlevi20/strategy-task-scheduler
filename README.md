@@ -2,6 +2,25 @@
 
 A small **simulated** Python task scheduler for the interview exercise in [`context.md`](context.md). It separates task input, per-user daily quotas, action dispatch, and due-time scheduling. Actions named `sync`, `backup`, and `delete` log successes but do **not** modify files.
 
+## Architecture
+
+```mermaid
+flowchart LR
+    Input[Task dictionaries] --> Task[Task model and validation]
+    Clock[Supplied date and time] --> Scheduler[Scheduler]
+    Task --> Scheduler
+    Scheduler -->|Check daily limit| Quota[QuotaManager]
+    Scheduler -->|Dispatch due task| Executor[TaskExecutor]
+    Executor -->|Simulated action| Actions[sync / backup / delete]
+    Executor -->|Success or failure| Scheduler
+    Scheduler -->|Success only| Quota
+    Scheduler --> Outcomes[Per-task outcomes]
+    Executor --> Logs[Logs]
+    Scheduler --> Logs
+```
+
+**In simple terms:** The `Task` model checks each submitted task's data. The `Scheduler` compares its daily scheduled time with the supplied clock and skips tasks already completed that day. It asks `QuotaManager` whether the user has a slot, then asks `TaskExecutor` to simulate the action. Only a successful action uses a quota slot; failures can be retried while due. The scheduler returns a status for each due task, and the executor and scheduler log what happened. All state is held in memory.
+
 ## Run
 
 Requires Python 3.11 or newer. From the repository root:
@@ -20,7 +39,7 @@ python -m pip install ruff
 ruff check .
 ```
 
-GitHub Actions runs the same tests and linter on pushes and pull requests. There are no credentials or environment variables to configure; hence no `.env.example` is needed. `.gitignore` excludes local secrets and Python/tool artifacts.
+GitHub Actions runs the same tests and linter on pushes and pull requests. See the [local verification report](docs/test-results.md). There are no credentials or environment variables to configure; hence no `.env.example` is needed. `.gitignore` excludes local secrets and Python/tool artifacts.
 
 ## Decisions and limitations
 
