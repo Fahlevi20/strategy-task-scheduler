@@ -38,6 +38,20 @@ class SchedulerTests(TestCase):
         )
         self.assertEqual(calls, ["good"])
 
+    def test_registered_task_parameters_cannot_change_before_execution(self):
+        observed = []
+        scheduler = Scheduler(
+            QuotaManager({"alice": 1}),
+            TaskExecutor(
+                actions={"inspect": lambda task: observed.append(task.parameters["depth"])}
+            ),
+        )
+        task = Task("one", "alice", "12:00", "inspect", "/data", {"depth": 2})
+        scheduler.add_task(task)
+        task.parameters["depth"] = 9
+        scheduler.run_due(datetime(2026, 10, 7, 12))
+        self.assertEqual(observed, [2])
+
     def test_reject_duplicate_unknown_user_and_unknown_action(self):
         scheduler = Scheduler(QuotaManager({"alice": 1}), TaskExecutor())
         task = Task("one", "alice", "12:00", "sync", "/data", {})

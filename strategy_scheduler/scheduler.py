@@ -37,7 +37,9 @@ class Scheduler:
         if not self._executor.has_action(task.action):
             raise ValueError(f"unknown action: {task.action}")
         self._quota.executed(task.user, date.today())
-        self._tasks.append(task)
+        self._tasks.append(
+            Task(task.id, task.user, task.time, task.action, task.target, task.parameters)
+        )
         self._ids.add(task.id)
 
     def run_due(self, now: datetime) -> list[TaskOutcome]:
