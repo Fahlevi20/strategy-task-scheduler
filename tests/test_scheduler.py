@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from unittest import TestCase
 
-from strategy_scheduler import QuotaManager, Task, TaskExecutor, Scheduler
+from strategy_scheduler import QuotaManager, Scheduler, Task, TaskExecutor
 
 
 class SchedulerTests(TestCase):

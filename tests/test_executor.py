@@ -7,7 +7,9 @@ from strategy_scheduler.task import Task
 class ExecutorTests(TestCase):
     def test_custom_handler_receives_parameters(self):
         seen = []
-        executor = TaskExecutor(actions={"inspect": lambda task: seen.append(task.parameters["depth"])})
+        executor = TaskExecutor(
+            actions={"inspect": lambda task: seen.append(task.parameters["depth"])}
+        )
         task = Task("t1", "alice", "12:00", "inspect", "/data", {"depth": 2})
         executor.execute(task)
         self.assertEqual(seen, [2])
